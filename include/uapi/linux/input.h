@@ -483,6 +483,16 @@ struct input_keymap_entry {
 #define KEY_DUMMY_BACK		253	/* Dummy Touchkey : BACK*/
 #define KEY_RECENT   	254
 
+/* Gesture keycodes */
+#define KEY_GESTURE_SLIDE_DOWN		249
+#define KEY_GESTURE_SLIDE_LEFT		250
+#define KEY_GESTURE_SLIDE_RIGHT		251
+#define KEY_GESTURE_SLIDE_C		252
+#define KEY_GESTURE_SLIDE_O		253
+#define KEY_GESTURE_SLIDE_UP		254
+#define KEY_GESTURE_SLIDE_E		255
+#define KEY_GESTURE_SLIDE_M		256
+#define KEY_GESTURE_SLIDE_W		257
 /* Code 255 is reserved for special needs of AT keyboard driver */
 
 #define BTN_MISC		0x100
