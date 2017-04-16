@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -209,6 +209,8 @@ struct mdss_mdp_ctl {
 
 	u16 width;
 	u16 height;
+	u16 border_x_off;
+	u16 border_y_off;
 	u32 dst_format;
 	bool is_secure;
 
@@ -218,6 +220,7 @@ struct mdss_mdp_ctl {
 	struct mdss_mdp_perf_params new_perf;
 	u32 perf_transaction_status;
 	bool perf_release_ctl_bw;
+	u64 bw_pending;
 
 	bool traffic_shaper_enabled;
 	u32  traffic_shaper_mdp_clk;
@@ -528,34 +531,6 @@ struct mdss_mdp_commit_cb {
 		void *data);
 };
 
-#if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
-struct mdss_mdp_cmd_ctx {
-	struct mdss_mdp_ctl *ctl;
-	u32 pp_num;
-	u8 ref_cnt;
-	struct completion stop_comp;
-	wait_queue_head_t pp_waitq;
-	struct list_head vsync_handlers;
-	int panel_power_state;
-	atomic_t koff_cnt;
-	u32 intf_stopped;
-	int clk_enabled;
-	int vsync_enabled;
-	int rdptr_enabled;
-	struct mutex clk_mtx;
-	spinlock_t clk_lock;
-	spinlock_t koff_lock;
-	struct work_struct clk_work;
-	struct work_struct pp_done_work;
-	atomic_t pp_done_cnt;
-	struct mdss_intf_recovery intf_recovery;
-	struct mdss_mdp_cmd_ctx *sync_ctx; /* for partial update */
-	u32 pp_timeout_report_cnt;
-};
-#endif
-
-
-
 /**
  * enum mdss_screen_state - Screen states that MDP can be forced into
  *
@@ -767,7 +742,18 @@ static inline bool mdss_mdp_ctl_is_power_on_lp(struct mdss_mdp_ctl *ctl)
 static inline u32 left_lm_w_from_mfd(struct msm_fb_data_type *mfd)
 {
 	struct mdss_mdp_ctl *ctl = mfd_to_ctl(mfd);
-	return (ctl && ctl->mixer_left) ? ctl->mixer_left->width : 0;
+	struct mdss_panel_info *pinfo = mfd->panel_info;
+	int width = 0;
+
+	if (ctl && ctl->mixer_left) {
+		width =  ctl->mixer_left->width;
+		width -= (pinfo->lcdc.border_left + pinfo->lcdc.border_right);
+		pr_debug("ctl=%d mw=%d l=%d r=%d w=%d\n",
+			ctl->num, ctl->mixer_left->width,
+			pinfo->lcdc.border_left, pinfo->lcdc.border_right,
+			width);
+	}
+	return width;
 }
 
 static inline uint8_t pp_vig_csc_pipe_val(struct mdss_mdp_pipe *pipe)
@@ -1018,8 +1004,4 @@ int mdss_mdp_wb_set_secure(struct msm_fb_data_type *mfd, int enable);
 int mdss_mdp_wb_get_secure(struct msm_fb_data_type *mfd, uint8_t *enable);
 void mdss_mdp_ctl_restore(void);
 int  mdss_mdp_ctl_reset(struct mdss_mdp_ctl *ctl);
-#if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
-void mdss_dsi_check_te(void);
-void mdss_mdp_underrun_clk_info(void);
-#endif
 #endif /* MDSS_MDP_H */

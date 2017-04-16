@@ -181,6 +181,7 @@ u32 mdss_mdp_calc_latency_buf_bytes(bool is_bwc,
 	u32 latency_lines, latency_buf_bytes;
 	struct mdss_data_type *mdata = mdss_mdp_get_mdata();
 
+
 	if (is_bwc) {
 		latency_lines = 4;
 		latency_buf_bytes = src_w * bpp *
@@ -963,6 +964,9 @@ static int mdss_mdp_set_threshold_max_bandwidth(struct mdss_mdp_ctl *ctl)
 	pr_debug("final mode = %d, bw_mode_bitmap = %d\n", mode,
 			ctl->mdata->bw_mode_bitmap);
 
+	/* Select BW mode with smallest limit */
+	while (mode) {
+		if (mode & BIT(0)) {
 	/* Return minimum bandwidth limit */
 	for (i = 0; i < ctl->mdata->max_bw_settings_cnt; i++) {
 		if (max_bw_settings[i].mdss_max_bw_mode & mode) {
@@ -970,6 +974,10 @@ static int mdss_mdp_set_threshold_max_bandwidth(struct mdss_mdp_ctl *ctl)
 			if (threshold < max)
 				max = threshold;
 		}
+	}
+		}
+		mode >>= 1;
+		i++;
 	}
 
 	return max;
@@ -1096,7 +1104,6 @@ static void mdss_mdp_perf_calc_ctl(struct mdss_mdp_ctl *ctl,
 {
 	struct mdss_mdp_pipe *left_plist[MAX_PIPES_PER_LM];
 	struct mdss_mdp_pipe *right_plist[MAX_PIPES_PER_LM];
-        struct mdss_data_type *mdata = mdss_mdp_get_mdata();
 	int i, left_cnt = 0, right_cnt = 0;
 
 	for (i = 0; i < MAX_PIPES_PER_LM; i++) {
@@ -1122,13 +1129,6 @@ static void mdss_mdp_perf_calc_ctl(struct mdss_mdp_ctl *ctl,
 				&mdss_res->ib_factor_overlap),
 			apply_fudge_factor(perf->bw_prefill,
 				&mdss_res->ib_factor));
-                if (left_cnt == 1) {
-                        mdata->ib_factor_single.numer = 11;
-                        mdata->ib_factor_single.denom = 10;
-
-                        perf->bw_ctl = apply_fudge_factor(perf->bw_ctl,
-                                &mdss_res->ib_factor_single);
-                } 
 	} else if (ctl->intf_num != MDSS_MDP_NO_INTF) {
 		perf->bw_ctl = apply_fudge_factor(perf->bw_ctl,
 				&mdss_res->ib_factor_cmd);
@@ -3534,7 +3534,7 @@ int mdss_mdp_display_commit(struct mdss_mdp_ctl *ctl, void *arg,
 					}
 					pr_info(" mdss_mdp_csc_setup start\n");
 					mdss_mdp_csc_setup(MDSS_MDP_BLOCK_SSPP, pipe->num,
-									MDSS_MDP_CSC_YUV2RGB);
+									MDSS_MDP_CSC_YUV2RGB_601L);
 					csc_change = 0;
 				}
 			}
