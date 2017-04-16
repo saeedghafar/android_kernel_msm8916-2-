@@ -105,14 +105,7 @@ static unsigned int enable_dbg_log = 1;
 module_param(enable_dbg_log, uint, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(enable_dbg_log, "Debug buffer events");
 
-#ifdef OTG_WAIT_PMIC
-/* Max current to be drawn for HVDCP charger */
-static int hvdcp_max_current = IDEV_HVDCP_CHG_MAX;
-module_param(hvdcp_max_current, int, S_IRUGO|S_IWUSR);
-MODULE_PARM_DESC(hvdcp_max_current, "max current drawn for HVDCP charger");
-
 static DECLARE_COMPLETION(pmic_vbus_init);
-#endif
 static struct msm_otg *the_msm_otg;
 static bool debug_aca_enabled;
 static bool debug_bus_voting_enabled;
@@ -4773,10 +4766,6 @@ static int otg_power_set_property_usb(struct power_supply *psy,
 			break;
 		case POWER_SUPPLY_TYPE_USB_CDP:
 			motg->chg_type = USB_CDP_CHARGER;
-			break;
-		case POWER_SUPPLY_TYPE_USB_HVDCP:
-			motg->chg_type = USB_DCP_CHARGER;
-			msm_otg_notify_charger(motg, hvdcp_max_current);
 			break;
 		case POWER_SUPPLY_TYPE_USB_ACA:
 			motg->chg_type = USB_PROPRIETARY_CHARGER;

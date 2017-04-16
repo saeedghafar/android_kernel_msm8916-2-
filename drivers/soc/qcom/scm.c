@@ -216,13 +216,6 @@ static u32 smc(u32 cmd_addr)
 	return r0;
 }
 
-#if defined(CONFIG_ARCH_MSM8916) || defined(CONFIG_ARCH_MSM8226) || defined(CONFIG_ARCH_MSM8929) || defined(CONFIG_ARCH_MSM8939)
-static void __wrap_flush_cache_all(void* vp)
-{
-	flush_cache_all();
-}
-#endif
-
 static int __scm_call(const struct scm_command *cmd)
 {
 	int ret;

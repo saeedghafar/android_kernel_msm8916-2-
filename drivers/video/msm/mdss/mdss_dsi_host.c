@@ -1724,8 +1724,6 @@ end:
 	return rp->read_cnt;
 }
 
-#define DMA_TX_TIMEOUT 1000
-
 static int mdss_dsi_cmd_dma_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 					struct dsi_buf *tp)
 {
