@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -626,12 +626,12 @@ int mdss_mdp_csc_setup(u32 block, u32 blk_idx, u32 csc_type)
 		 block, blk_idx);
 
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
-	if (csc_type == MDSS_MDP_CSC_YUV2RGB && !csc_update) {
+	if (csc_type == MDSS_MDP_CSC_YUV2RGB_601L && !csc_update) {
 		data = &mdp_csc_convert_wideband;
-		pr_debug("will do mdp_csc_convert (wide band)\n");
+		pr_info("will do mdp_csc_convert (wide band)\n");
 	} else {
 	data = &mdp_csc_convert[csc_type];
-		pr_debug("will do mdp_csc_convert (narrow band)\n");
+		pr_info("will do mdp_csc_convert (narrow band)\n");
 	}
 #else
 	data = &mdp_csc_convert[csc_type];
@@ -960,13 +960,9 @@ static int pp_vig_pipe_setup(struct mdss_mdp_pipe *pipe, u32 *op)
 			 */
 #if defined(CONFIG_FB_MSM_MDSS_SAMSUNG)
 		if ((pipe->play_cnt == 0))
-			mdss_mdp_csc_setup(MDSS_MDP_BLOCK_SSPP, pipe->num,
-					   MDSS_MDP_CSC_YUV2RGB);
-#else
-
+#endif
 			mdss_mdp_csc_setup(MDSS_MDP_BLOCK_SSPP, pipe->num,
 					   pp_vig_csc_pipe_val(pipe));
-#endif
 		}
 	}
 
@@ -5653,9 +5649,6 @@ static int is_valid_calib_addr(void *addr, u32 operation)
 	int ret = 0;
 	char __iomem *ptr = addr;
 	char __iomem *mixer_base = mdss_res->mixer_intf->base;
-	char __iomem *rgb_base   = mdss_res->rgb_pipes->base;
-	char __iomem *dma_base   = mdss_res->dma_pipes->base;
-	char __iomem *vig_base   = mdss_res->vig_pipes->base;
 	char __iomem *ctl_base   = mdss_res->ctl_off->base;
 	char __iomem *dspp_base  = mdss_res->mixer_intf->dspp_base;
 
@@ -5687,17 +5680,20 @@ static int is_valid_calib_addr(void *addr, u32 operation)
 			if (ret)
 				goto valid_addr;
 		}
-		if (ptr >= vig_base) {
+		if (mdss_res->vig_pipes &&
+		    ptr >= mdss_res->vig_pipes->base) {
 			ret = is_valid_calib_vig_addr(ptr);
 			if (ret)
 				goto valid_addr;
 		}
-		if (ptr >= rgb_base) {
+		if (mdss_res->rgb_pipes &&
+		    ptr >= mdss_res->rgb_pipes->base) {
 			ret = is_valid_calib_rgb_addr(ptr);
 			if (ret)
 				goto valid_addr;
 		}
-		if (ptr >= dma_base) {
+		if (mdss_res->dma_pipes &&
+		    ptr >= mdss_res->dma_pipes->base) {
 			ret = is_valid_calib_dma_addr(ptr);
 			if (ret)
 				goto valid_addr;
