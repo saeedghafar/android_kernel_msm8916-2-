@@ -518,8 +518,9 @@ static int android_oom_handler(struct notifier_block *nb,
 	dump_stack();
 	show_mem(SHOW_MEM_FILTER_NODES);
 	if (__ratelimit(&oom_rs))
+#ifdef CONFIG_SEC_DEBUG_LMK_MEMINFO
 		dump_tasks_info();
-
+#endif
 	min_score_adj = 0;
 #ifdef MULTIPLE_OOM_KILLER
 	for (i = 0; i < OOM_DEPTH; i++)
