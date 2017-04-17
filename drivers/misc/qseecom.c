@@ -863,12 +863,8 @@ static void qseecom_bw_inactive_req_work(struct work_struct *work)
 {
 	mutex_lock(&app_access_lock);
 	mutex_lock(&qsee_bw_mutex);
-//	__qseecom_set_msm_bus_request(INACTIVE);
-       if (qseecom.timer_running) {
+	if (qseecom.timer_running)
 		__qseecom_set_msm_bus_request(INACTIVE);
-	}       else {
-		pr_debug("QMCK: timer_running is false");
-	}
 	pr_debug("current_mode = %d, cumulative_mode = %d\n",
 				qseecom.current_mode, qseecom.cumulative_mode);
 	qseecom.timer_running = false;
@@ -5120,12 +5116,10 @@ long qseecom_ioctl(struct file *file, unsigned cmd, unsigned long arg)
 			break;
 		}
 		/* Only one client allowed here at a time */
-		mutex_lock(&app_access_lock);
 		atomic_inc(&data->ioctl_count);
 		ret = qseecom_send_modfd_resp(data, argp);
 		atomic_dec(&data->ioctl_count);
 		wake_up_all(&data->abort_wq);
-		mutex_unlock(&app_access_lock);
 		if (ret)
 			pr_err("failed qseecom_send_mod_resp: %d\n", ret);
 		break;
@@ -5840,7 +5834,6 @@ static int qseecom_suspend(struct platform_device *pdev, pm_message_t state)
 
 	mutex_unlock(&clk_access_lock);
 	mutex_unlock(&qsee_bw_mutex);
-
 	cancel_work_sync(&qseecom.bw_inactive_req_ws);
 
 	return 0;
