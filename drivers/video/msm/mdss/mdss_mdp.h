@@ -742,18 +742,7 @@ static inline bool mdss_mdp_ctl_is_power_on_lp(struct mdss_mdp_ctl *ctl)
 static inline u32 left_lm_w_from_mfd(struct msm_fb_data_type *mfd)
 {
 	struct mdss_mdp_ctl *ctl = mfd_to_ctl(mfd);
-	struct mdss_panel_info *pinfo = mfd->panel_info;
-	int width = 0;
-
-	if (ctl && ctl->mixer_left) {
-		width =  ctl->mixer_left->width;
-		width -= (pinfo->lcdc.border_left + pinfo->lcdc.border_right);
-		pr_debug("ctl=%d mw=%d l=%d r=%d w=%d\n",
-			ctl->num, ctl->mixer_left->width,
-			pinfo->lcdc.border_left, pinfo->lcdc.border_right,
-			width);
-	}
-	return width;
+	return (ctl && ctl->mixer_left) ? ctl->mixer_left->width : 0;
 }
 
 static inline uint8_t pp_vig_csc_pipe_val(struct mdss_mdp_pipe *pipe)
