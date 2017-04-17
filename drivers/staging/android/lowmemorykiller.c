@@ -204,6 +204,7 @@ static struct notifier_block lmk_vmpr_nb = {
 	.notifier_call = lmk_vmpressure_notifier,
 };
 
+#ifdef CONFIG_SEC_DEBUG_LMK_MEMINFO
 static void dump_tasks_info(void)
 {
 	struct task_struct *p;
@@ -235,6 +236,7 @@ static void dump_tasks_info(void)
 		task_unlock(task);
 	}
 }
+#endif
 
 static int test_task_flag(struct task_struct *p, int flag)
 {

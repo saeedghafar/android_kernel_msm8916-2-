@@ -1318,7 +1318,7 @@ static int mdss_fb_blank_blank(struct msm_fb_data_type *mfd,
 {
 	int ret = 0;
 	int cur_power_state;
-	int current_bl = 0;
+	//int current_bl = 0;
 
 	if (!mfd)
 		return -EINVAL;
