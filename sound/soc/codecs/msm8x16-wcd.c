@@ -5346,7 +5346,6 @@ static int msm8x16_wcd_device_up(struct snd_soc_codec *codec)
 
 	struct msm8x16_wcd_priv *msm8x16_wcd_priv =
 		snd_soc_codec_get_drvdata(codec);
-	u32 reg;
 #ifndef CONFIG_SAMSUNG_JACK
 	int ret = 0;
 #endif /* not CONFIG_SAMSUNG_JACK */

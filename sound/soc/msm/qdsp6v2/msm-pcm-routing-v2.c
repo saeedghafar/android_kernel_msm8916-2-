@@ -6988,8 +6988,6 @@ static int msm_routing_probe(struct snd_soc_platform *platform)
 
 	snd_soc_dapm_new_widgets(&platform->dapm);
 
-	snd_soc_add_platform_controls(platform, lsm_function,
-				      ARRAY_SIZE(lsm_function));
 #ifdef CONFIG_SAMSUNG_AUDIO
 	snd_soc_add_platform_controls(platform,
 				ss_solution_mixer_controls,
