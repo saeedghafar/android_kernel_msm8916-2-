@@ -336,33 +336,23 @@ out_micb_en:
 			break;
 		}
 
+		if (mbhc->mbhc_cb->set_auto_zeroing)
 			mbhc->mbhc_cb->set_auto_zeroing(codec, false);
 		if (mbhc->mbhc_cb->set_micbias_value && !mbhc->micbias_enable)
 			mbhc->mbhc_cb->set_micbias_value(codec);
 		/* Enable PULL UP if PA's are enabled */
 		if ((test_bit(WCD_MBHC_EVENT_PA_HPHL, &mbhc->event_state)) ||
 				(test_bit(WCD_MBHC_EVENT_PA_HPHR,
-					  &mbhc->event_state))) {
-			if ( mbhc->current_plug == MBHC_PLUG_TYPE_HEADSET ) {
-				/* Disable micbias, enable pullup & cs */
-				wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_PULLUP);
-			} else if (mbhc->current_plug == MBHC_PLUG_TYPE_HEADPHONE) {
-				wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_CS);
-			} else {
-				/* HPH or extension cable */
-				wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_NONE);
-			}
-		}
-		/* Enable micbias if extn cable detection is enabled */
-		else {
-			if ( mbhc->current_plug == MBHC_PLUG_TYPE_HEADSET ) {
-				wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_PULLUP);
-			} else if ( mbhc->current_plug == MBHC_PLUG_TYPE_HEADPHONE ) {
-				wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_CS);
-			} else {
-				wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_NONE);
-			}
-		}
+					  &mbhc->event_state)))
+			/* enable pullup and cs, disable mb */
+			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_PULLUP);
+		else
+			/* enable current source and disable mb, pullup*/
+			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_CS);
+
+		/* configure cap settings properly when micbias is disabled */
+		if (mbhc->mbhc_cb->set_cap_mode)
+			mbhc->mbhc_cb->set_cap_mode(codec, micbias1, false);
 		break;
 	case WCD_EVENT_PRE_HPHL_PA_OFF:
 		mutex_lock(&mbhc->hphl_pa_lock);
@@ -1016,35 +1006,27 @@ static void wcd_enable_mbhc_supply(struct wcd_mbhc *mbhc,
 	if (det_extn_cable_en && mbhc->is_extn_cable &&
 		mbhc->mbhc_cb && mbhc->mbhc_cb->extn_use_mb &&
 		mbhc->mbhc_cb->extn_use_mb(codec)) {
-		pr_err("%s: plug_type = %d\n", __func__, plug_type);
-		if (plug_type == MBHC_PLUG_TYPE_HEADSET) {
-			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_PULLUP);
-		} else if (plug_type == MBHC_PLUG_TYPE_HEADPHONE) {
-			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_CS);
-		} else {
-			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_NONE);
-			/* CS enable */
-			snd_soc_update_bits(mbhc->codec,
-					MSM8X16_WCD_A_ANALOG_MBHC_FSM_CTL,
-					0x30, 0x10);
-		}
+		if (plug_type == MBHC_PLUG_TYPE_HEADPHONE ||
+		    plug_type == MBHC_PLUG_TYPE_HEADSET)
+			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_MB);
 	} else {
 		if (plug_type == MBHC_PLUG_TYPE_HEADSET) {
 			if (mbhc->is_hs_recording || mbhc->micbias_enable)
 				wcd_enable_curr_micbias(mbhc,
 							WCD_MBHC_EN_MB);
-			} else {
-				wcd_enable_curr_micbias(mbhc,
+			else if ((test_bit(WCD_MBHC_EVENT_PA_HPHL,
+				&mbhc->event_state)) ||
+				(test_bit(WCD_MBHC_EVENT_PA_HPHR,
+				&mbhc->event_state)))
+					wcd_enable_curr_micbias(mbhc,
 							WCD_MBHC_EN_PULLUP);
-			}
+			else
+				wcd_enable_curr_micbias(mbhc,
+							WCD_MBHC_EN_CS);
 		} else if (plug_type == MBHC_PLUG_TYPE_HEADPHONE) {
 			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_CS);
 		} else {
 			wcd_enable_curr_micbias(mbhc, WCD_MBHC_EN_NONE);
-			/* CS enable */
-			snd_soc_update_bits(mbhc->codec,
-					MSM8X16_WCD_A_ANALOG_MBHC_FSM_CTL,
-					0x30, 0x10);
 		}
 	}
 }
