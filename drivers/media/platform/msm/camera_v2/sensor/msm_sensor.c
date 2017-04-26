@@ -47,7 +47,7 @@ extern void ktd2692_flash_on(unsigned data);
 
 int is_cam_powerd_on = 0;
 
-#if defined(CONFIG_FLED_LM3632) || defined(CONFIG_FLED_KTD2692)
+#if defined(CONFIG_FLED_LM3632)
 int32_t msm_sensor_flash_native_control(struct msm_sensor_ctrl_t *s_ctrl,
 	void __user *argp)
 {
