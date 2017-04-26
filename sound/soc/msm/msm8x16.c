@@ -991,40 +991,6 @@ static int msm_mi2s_snd_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
-static int sec_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
-{
-	int ret = 0;
-
-	if (enable) {
-		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-			if (mi2s_rx_bit_format == SNDRV_PCM_FORMAT_S24_LE)
-				mi2s_rx_clk_v1.clk_val1 =
-					Q6AFE_LPASS_IBIT_CLK_3_P072_MHZ;
-			else
-				mi2s_rx_clk_v1.clk_val1 =
-					Q6AFE_LPASS_IBIT_CLK_1_P536_MHZ;
-			ret = afe_set_lpass_clock(AFE_PORT_ID_SECONDARY_MI2S_RX,
-						  &mi2s_rx_clk_v1);
-		} else
-			pr_err("%s:Not valid substream.\n", __func__);
-
-		if (ret < 0)
-			pr_err("%s:afe_set_lpass_clock failed\n", __func__);
-
-	} else {
-		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-			mi2s_rx_clk_v1.clk_val1 = Q6AFE_LPASS_IBIT_CLK_DISABLE;
-			ret = afe_set_lpass_clock(AFE_PORT_ID_SECONDARY_MI2S_RX,
-						  &mi2s_rx_clk_v1);
-		} else
-			pr_err("%s:Not valid substream.\n", __func__);
-
-		if (ret < 0)
-			pr_err("%s:afe_set_lpass_clock failed\n", __func__);
-	}
-	return ret;
-}
-
 
 #ifdef CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE
 extern unsigned int system_rev;
