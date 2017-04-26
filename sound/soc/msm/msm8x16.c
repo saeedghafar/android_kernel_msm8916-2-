@@ -1098,48 +1098,6 @@ static int quat_mi2s_sclk_ctl(struct snd_pcm_substream *substream, bool enable)
 	return ret;
 }
 #endif
-static int mi2s_clk_ctl(struct snd_pcm_substream *substream, bool enable)
-{
-	int ret = 0;
-	if (enable) {
-		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-			if (mi2s_rx_bit_format == SNDRV_PCM_FORMAT_S24_LE)
-				mi2s_rx_clk_v1.clk_val1 =
-					Q6AFE_LPASS_IBIT_CLK_3_P072_MHZ;
-			else
-				mi2s_rx_clk_v1.clk_val1 =
-					Q6AFE_LPASS_IBIT_CLK_1_P536_MHZ;
-			ret = afe_set_lpass_clock(AFE_PORT_ID_PRIMARY_MI2S_RX,
-						  &mi2s_rx_clk_v1);
-		} else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
-			mi2s_tx_clk_v1.clk_val1 =
-					Q6AFE_LPASS_IBIT_CLK_1_P536_MHZ;
-			ret = afe_set_lpass_clock(AFE_PORT_ID_TERTIARY_MI2S_TX,
-						  &mi2s_tx_clk_v1);
-		} else
-			pr_err("%s:Not valid substream.\n", __func__);
-
-		if (ret < 0)
-			pr_err("%s:afe_set_lpass_clock failed\n", __func__);
-
-	} else {
-		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-			mi2s_rx_clk_v1.clk_val1 = Q6AFE_LPASS_IBIT_CLK_DISABLE;
-			ret = afe_set_lpass_clock(AFE_PORT_ID_PRIMARY_MI2S_RX,
-						  &mi2s_rx_clk_v1);
-		} else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE) {
-			mi2s_tx_clk_v1.clk_val1 = Q6AFE_LPASS_IBIT_CLK_DISABLE;
-			ret = afe_set_lpass_clock(AFE_PORT_ID_TERTIARY_MI2S_TX,
-						  &mi2s_tx_clk_v1);
-		} else
-			pr_err("%s:Not valid substream.\n", __func__);
-
-		if (ret < 0)
-			pr_err("%s:afe_set_lpass_clock failed\n", __func__);
-
-	}
-	return ret;
-}
 
 static uint32_t get_mi2s_rx_clk_val(void)
 {
