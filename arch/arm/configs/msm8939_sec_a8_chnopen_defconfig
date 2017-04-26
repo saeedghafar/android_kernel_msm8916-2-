@@ -22,14 +22,6 @@ CONFIG_MUIC_SUPPORT_CHARGING_CABLE=y
 CONFIG_MUIC_SUPPORT_DESKDOCK=y
 CONFIG_MUIC_SUPPORT_RUSTPROOF=y
 
-#############################################
-# SOUND FEATURE
-#############################################
-CONFIG_AUDIO_SPEAKER_OUT_NXP_AMP_ENABLE=y
-CONFIG_AUDIO_QUAT_I2S_ENABLE=y
-CONFIG_SW_100K_TO_GND=y
-#############################################
-
 #SENSOR
 CONFIG_SENSORS=y
 CONFIG_SENSORS_CORE=y
