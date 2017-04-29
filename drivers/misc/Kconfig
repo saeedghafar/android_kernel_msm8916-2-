@@ -606,14 +606,12 @@ config USBID_STANDARD_VER_01
 
 config MUIC_SUPPORT_RUSTPROOF
 	bool "MUIC Disable UART"
-	depends on !SEC_FACTORY
 	default n
 	help
 	 This option will disable the UART to prevent the rusting
 
 config MUIC_SUPPORT_RUSTPROOF_INBATT
 	bool "MUIC Disable UART IN SUSPEND"
-	depends on !SEC_FACTORY
 	default n
 	help
 	 This option will muic path open in the suspend
@@ -645,7 +643,7 @@ config MUIC_SUPPORT_SMARTDOCK
 
 config MUIC_SM5502_SUPPORT_LANHUB_TA
 	bool "SM5502 Muic Lanhub TA support"
-	depends on SM5502_MUIC && !SEC_FACTORY
+	depends on SM5502_MUIC
 	default n
 	help
 	 This option enable the LANHUB + TA Support for the SM5502 MUIC
@@ -658,7 +656,7 @@ config MUIC_SM5502_SUPPORT_LANHUB_TA
 
 config MUIC_SM5703_SUPPORT_LANHUB_TA
 	bool "SM5703 Muic Lanhub TA support"
-	depends on SM5703_MUIC && !SEC_FACTORY
+	depends on SM5703_MUIC
 	default n
 	help
 	 This option enable the LANHUB + TA Support for the SM5502 MUIC

@@ -61,14 +61,6 @@ config EXTCON_MAX77849
 	  Maxim MAX77849 PMIC.
 	  The MAX77849 MUIC is a USB port accessory detector and switch.
 
-config ADC_ONESHOT
-	bool "MAX77804K ADC ONESHOT MODE Support"
-	depends on EXTCON_MAX77804K || EXTCON_MAX77849
-	depends on !SEC_FACTORY
-	default n
-	help
-		Say Y here to enable ADC Oneshot mode when detecting ID value
-
 config EXTCON_S2MM001
 	bool "SYSTEM LSI MUIC"
 	default n
@@ -105,16 +97,8 @@ config MUIC_SUPPORT_INCOMPATIBLE_CHARGER
 	help
 	  If you say yes here you will get support for the incompatible charger.
 
-config MUIC_SUPPORT_LANHUB
-	bool "MUIC_SUPPORT_LANHUB"
-	depends on !SEC_FACTORY
-	default n
-	help
-	  If you say yes here, you will get support for the LANHUB cable.
-
 config MUIC_SUPPORT_RUSTPROOF
 	bool "MUIC Disable UART"
-	depends on !SEC_FACTORY
 	default n
 	help
 	 This option will disable the UART to prevent the rusting of the

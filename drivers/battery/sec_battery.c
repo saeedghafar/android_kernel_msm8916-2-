@@ -1477,9 +1477,6 @@ static void sec_bat_discharging_check(struct sec_battery_info *battery)
 
 	if (!battery->self_discharging &&
 	    (battery->temperature >= battery->pdata->force_discharging_limit &&
-#if defined(CONFIG_SEC_FACTORY)
-	     battery->temperature < 800 &&
-#endif
 	     battery->voltage_now >= battery->pdata->self_discharging_voltage_limit)) {
 		sec_bat_self_discharging_control(battery, true);
 	} else if(battery->force_discharging &&
@@ -1493,7 +1490,6 @@ static void sec_bat_discharging_check(struct sec_battery_info *battery)
 }
 #endif
 
-#if !defined(CONFIG_SEC_FACTORY)
 static void sec_bat_chg_temperature_check(
 	struct sec_battery_info *battery)
 {
@@ -1555,7 +1551,6 @@ static void sec_bat_chg_temperature_check(
 		battery->chg_limit = SEC_BATTERY_CHG_TEMP_NONE;
 	}
 }
-#endif
 
 static void  sec_bat_event_program_alarm(
 	struct sec_battery_info *battery, int seconds)
@@ -2373,7 +2368,6 @@ static void sec_bat_get_battery_info(
 	battery->capacity = value.intval;
 #endif
 
-#if !defined(CONFIG_SEC_FACTORY)
 #if defined(CONFIG_SW_SELF_DISCHARGING)
 	if (battery->temperature >= battery->pdata->self_discharging_temp_block &&
 			battery->voltage_now >= battery->pdata->self_discharging_volt_block) {
@@ -2386,16 +2380,13 @@ static void sec_bat_get_battery_info(
 	}
 	pr_info("%s : sw_self_discharging (%d)\n",__func__, battery->sw_self_discharging);
 #endif
-#endif
 
-#if !defined(CONFIG_SEC_FACTORY)
 	if (battery->capacity > 5 && battery->ignore_store_mode) {
 		battery->ignore_store_mode = false;
 		value.intval = battery->store_mode;
 		psy_do_property(battery->pdata->charger_name, set,
 				POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX, value);
 	}
-#endif
 
 #if defined(CONFIG_MACH_KOR_EARJACK_WR)
 	value.intval = sec_bat_get_earjack_input_current(battery);
@@ -2766,11 +2757,9 @@ static void sec_bat_monitor_work(
 	if (battery->pdata->monitor_additional_check)
 		battery->pdata->monitor_additional_check();
 
-#if !defined(CONFIG_SEC_FACTORY)
 	/* 7. charger temperature check */
 	if (battery->pdata->chg_temp_check)
 		sec_bat_chg_temperature_check(battery);
-#endif
 
 continue_monitor:
 #if defined(CONFIG_AFC_CHARGER_MODE)
@@ -3699,7 +3688,6 @@ ssize_t sec_bat_store_attrs(
 		        if (x)
 			        battery->store_mode = true;
 			ret = count;
-#if !defined(CONFIG_SEC_FACTORY)
 			if (battery->store_mode) {
 				if (battery->capacity <= 5) {
 					battery->ignore_store_mode = true;
@@ -3710,7 +3698,6 @@ ssize_t sec_bat_store_attrs(
 						POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX, value);
 				}
 			}
-#endif
 		}
 		break;
 	case UPDATE:
@@ -4281,25 +4268,10 @@ static int sec_bat_get_property(struct power_supply *psy,
 		val->intval = battery->pdata->technology;
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-#ifdef CONFIG_SEC_FACTORY
-		psy_do_property(battery->pdata->fuelgauge_name, get,
-				POWER_SUPPLY_PROP_VOLTAGE_NOW, value);
-		battery->voltage_now = value.intval;
-		dev_err(battery->dev,
-			"%s: voltage now(%d)\n", __func__, battery->voltage_now);
-#endif
 		/* voltage value should be in uV */
 		val->intval = battery->voltage_now * 1000;
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_AVG:
-#ifdef CONFIG_SEC_FACTORY
-		value.intval = SEC_BATTEY_VOLTAGE_AVERAGE;
-		psy_do_property(battery->pdata->fuelgauge_name, get,
-				POWER_SUPPLY_PROP_VOLTAGE_AVG, value);
-		battery->voltage_avg = value.intval;
-		dev_err(battery->dev,
-			"%s: voltage avg(%d)\n", __func__, battery->voltage_avg);
-#endif
 		/* voltage value should be in uV */
 		val->intval = battery->voltage_avg * 1000;
 		break;
@@ -5921,7 +5893,7 @@ static int sec_battery_probe(struct platform_device *pdev)
 			POWER_SUPPLY_PROP_AFC_CHARGER_MODE,
 			value);
 #endif
-#if defined(CONFIG_STORE_MODE) && !defined(CONFIG_SEC_FACTORY)
+#if defined(CONFIG_STORE_MODE)
 	battery->store_mode = true;
 	value.intval = 0;
 	psy_do_property(battery->pdata->fuelgauge_name, get,

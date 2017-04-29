@@ -365,12 +365,6 @@ config ARCH_MSM8226
 	select MSM_IRQ
 endmenu
 
-config SEC_FACTORY
-	bool "when it comes to sec factory mode"
-    default n
-		help
-		  It will support a sec factory mode
-
 config SEC_8939_PROJECT
 	  depends on ARCH_MSM8916
 	  default n

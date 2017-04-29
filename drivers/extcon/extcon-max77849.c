@@ -1430,11 +1430,7 @@ static int max77849_muic_handle_attach(struct max77849_muic_info *info,
 		}
 		break;
 	case ADC_CARDOCK:	/* ADC_CARDOCK == ADC_JIG_UART_ON */
-#if defined(CONFIG_SEC_FACTORY)
-		new_state = BIT(EXTCON_CARDOCK);
-#else
 		new_state = BIT(EXTCON_JIG_UARTON);
-#endif
 		info->cable_name = EXTCON_JIG_UARTON;
 		break;
 	case ADC_JIG_USB_OFF:
@@ -2030,7 +2026,6 @@ static int max77849_muic_probe(struct platform_device *pdev)
 	return ret;
 }
 
-#if !defined(CONFIG_SEC_FACTORY)
 static int max77849_suspend(struct device *dev)
 {
     struct max77849_muic_info *info = dev_get_drvdata(dev);
@@ -2076,7 +2071,6 @@ static const struct dev_pm_ops max77849_dev_pm_ops = {
     .suspend	= max77849_suspend,
     .resume	= max77849_resume,
 };
-#endif
 
 static int max77849_muic_remove(struct platform_device *pdev)
 {
@@ -2122,9 +2116,7 @@ static struct platform_driver max77849_muic_driver = {
 	.driver		= {
 		.name	= DEV_NAME,
 		.owner	= THIS_MODULE,
-#if !defined(CONFIG_SEC_FACTORY)
 		.pm	= &max77849_dev_pm_ops,
-#endif
 		.shutdown = max77849_muic_shutdown,
 	},
 	.probe		= max77849_muic_probe,
