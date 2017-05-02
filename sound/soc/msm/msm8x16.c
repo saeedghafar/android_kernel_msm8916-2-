@@ -1825,6 +1825,10 @@ static int msm_quat_mi2s_snd_startup(struct snd_pcm_substream *substream)
 err1:
 	ret = ext_mi2s_clk_ctl(substream, false);
 	if (ret < 0)
+		pr_err("failed to disable sclk\n");
+err:
+	ret = msm8x16_enable_codec_ext_clk(codec, 0, true);
+	if (ret < 0)
 		pr_err("%s:failed to disable sclk\n", __func__);
 
 err:

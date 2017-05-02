@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2010-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -388,11 +389,6 @@ static int pil_alloc_region(struct pil_priv *priv, phys_addr_t min_addr,
 	if (region == NULL) {
 		pil_err(priv->desc, "Failed to allocate relocatable region of size %zx\n",
 					size);
-		/*Need ramdump on exact alloc failure case for venus*/
-#ifdef CONFIG_SEC_DEBUG
-		if (sec_debug_is_enabled())
-#endif
-			BUG_ON(!strcmp(priv->desc->name, "venus"));
 		return -ENOMEM;
 	}
 
